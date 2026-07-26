@@ -225,6 +225,10 @@ def build_context_package(reranked_df, max_chunks=MAX_CONTEXT_CHUNKS,
 # ======================================================================
 
 def detect_language(text: str) -> str:
+    # الاعتماد على langdetect لوحده بيغلط كتير مع الجمل القصيرة (زي أسئلة
+    # الأزرار الجاهزة). لو النص فيه حروف عربية فعلية، دي علامة أضمن بكتير.
+    if re.search(r"[\u0600-\u06FF]", text):
+        return "ar"
     try:
         lang = detect(text)
         return "ar" if lang == "ar" else "en"
@@ -572,12 +576,12 @@ PULSE_SVG = (
 )
 
 FIRST_AID_TOPICS = [
-    ("🩸", "نزيف"),
-    ("🔥", "حروق"),
-    ("🫁", "اختناق"),
-    ("❤️", "إنعاش قلبي (CPR)"),
-    ("🦴", "كسور"),
-    ("🐝", "لسعات وحساسية"),
+    ("🩸", "نزيف", "ما هي الخطوات الصحيحة للسيطرة على النزيف وإسعافه؟"),
+    ("🔥", "حروق", "كيف يتم التعامل الصحيح مع إصابات الحروق؟"),
+    ("🫁", "اختناق", "ما هي خطوات إسعاف حالة الاختناق (الشرقة)؟"),
+    ("❤️", "إنعاش قلبي (CPR)", "ما هي خطوات الإنعاش القلبي الرئوي (CPR) الصحيحة؟"),
+    ("🦴", "كسور", "كيف أتعامل مع حالة اشتباه في وجود كسر؟"),
+    ("🐝", "لسعات وحساسية", "ما هو الإسعاف الأولي للسعات الحشرات وردود الفعل التحسسية؟"),
 ]
 
 
@@ -604,8 +608,8 @@ def render_hero():
 def render_topics():
     st.markdown('<div class="section-label">🗂️ استكشف الحالات الشائعة</div>', unsafe_allow_html=True)
     cols = st.columns(len(FIRST_AID_TOPICS))
-    clicked_topic = None
-    for col, (emoji, label) in zip(cols, FIRST_AID_TOPICS):
+    clicked_question = None
+    for col, (emoji, label, topic_question) in zip(cols, FIRST_AID_TOPICS):
         with col:
             card_html = (
                 '<div class="category-card">'
@@ -615,8 +619,8 @@ def render_topics():
             )
             st.markdown(card_html, unsafe_allow_html=True)
             if st.button("اسأل", key=f"topic_{label}", use_container_width=True):
-                clicked_topic = label
-    return clicked_topic
+                clicked_question = topic_question
+    return clicked_question
 
 
 def render_sidebar():
@@ -701,7 +705,7 @@ def main():
 
     question = st.chat_input("اكتب سؤالك عن الإسعافات الأولية هنا...")
     if clicked_topic and not question:
-        question = f"إزاي أتصرف في حالة {clicked_topic}؟"
+        question = clicked_topic
 
     if question:
         st.session_state.chat_history.append({"role": "user", "content": question})
