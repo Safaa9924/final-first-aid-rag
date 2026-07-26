@@ -489,13 +489,79 @@ CUSTOM_CSS = """
 
     /* ---------- Sidebar ---------- */
     section[data-testid="stSidebar"] {
-        background: var(--surface);
-        border-left: 1px solid var(--line);
+        background: var(--teal-deep);
+        background-image: radial-gradient(circle at 20% 0%, rgba(11,122,102,0.55), transparent 55%);
     }
-    section[data-testid="stSidebar"] h3 {
-        font-family: 'Cairo', sans-serif !important;
-        color: var(--teal-deep) !important;
+    section[data-testid="stSidebar"] * { color: #EAFBF6; }
+    section[data-testid="stSidebar"] .block-container { padding-top: 1.6rem; }
+
+    .side-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-bottom: 1.4rem;
     }
+    .side-brand .dot {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: var(--coral);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .side-brand .name {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #F5FAF8;
+    }
+    .side-brand .role {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 0.72rem;
+        color: #9FD9CB;
+        font-weight: 500;
+    }
+
+    .side-heading {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #F5FAF8 !important;
+        margin: 1.1rem 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .side-text {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 0.85rem;
+        color: #BFE7DC !important;
+        line-height: 1.7;
+    }
+    .side-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.14);
+        border: none;
+        margin: 1.1rem 0;
+    }
+
+    section[data-testid="stSidebar"] .disclaimer {
+        background: rgba(242,169,59,0.14);
+        border: 1px solid rgba(242,169,59,0.4);
+    }
+    section[data-testid="stSidebar"] .disclaimer * { color: #FBE3AE !important; }
+
+    section[data-testid="stSidebar"] .stButton>button {
+        background: rgba(255,255,255,0.06) !important;
+        border: 1px solid rgba(255,255,255,0.22) !important;
+        color: #EAFBF6 !important;
+    }
+    section[data-testid="stSidebar"] .stButton>button:hover {
+        background: var(--coral) !important;
+        border-color: var(--coral) !important;
+        color: white !important;
+    }
+    section[data-testid="stSidebar"] label { color: #EAFBF6 !important; }
 </style>
 """
 
@@ -528,10 +594,10 @@ def render_hero():
             <h1>{SITE_NAME}</h1>
             <div class="tagline">{SITE_TAGLINE}</div>
             {PULSE_SVG}
-            <p class="sub">إجابات فورية وموثوقة وقت الطوارئ — مبنية على دليل الإسعافات
-            الأولية المعتمد من St. John Ambulance Canada</p>
+            <p class="sub">إجابات فورية وموثوقة وقت الطوارئ، مبنية على مرجع معتمد
+            من أساسيات الإسعافات الأولية العالمية.</p>
             <div class="chip-row">
-                <span class="info-chip">🌐 عربي / English</span>
+                <span class="info-chip">🌐 واجهة عربية بالكامل</span>
                 <span class="info-chip">⚡ إجابة فورية</span>
                 <span class="info-chip">📚 مصادر موثقة</span>
             </div>
@@ -563,20 +629,33 @@ def render_topics():
 
 def render_sidebar():
     with st.sidebar:
-        st.markdown(f"### 💓 عن {SITE_NAME}")
-        st.write(
-            f"«{SITE_NAME}» منصة إرشادية تقدّم معلومات إسعافات أولية سريعة وموثوقة "
-            "بالعربي والإنجليزي، مبنية على مصادر طبية معتمدة."
+        st.markdown(
+            f"""
+            <div class="side-brand">
+                <div class="dot">💓</div>
+                <div>
+                    <div class="name">{SITE_NAME}</div>
+                    <div class="role">مساعد الإسعافات الأولية</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
-        st.markdown("---")
-        st.markdown("### 🚑 تذكير مهم")
+        st.markdown(f'<div class="side-heading">💓 عن {SITE_NAME}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f"""<p class="side-text">«{SITE_NAME}» منصة إرشادية تقدّم معلومات إسعافات أولية
+            سريعة وموثوقة، مبنية على مصادر طبية معتمدة.</p>""",
+            unsafe_allow_html=True,
+        )
+        st.markdown('<hr class="side-divider">', unsafe_allow_html=True)
+        st.markdown('<div class="side-heading">🚑 تذكير مهم</div>', unsafe_allow_html=True)
         st.markdown(
             "<div class='disclaimer'>في حالة الطوارئ الحقيقية، اتصل فورًا "
             "بخدمات الإسعاف المحلية (123). المعلومات هنا للإرشاد الأولي فقط "
             "ولا تغني عن الرعاية الطبية المتخصصة.</div>",
             unsafe_allow_html=True,
         )
-        st.markdown("---")
+        st.markdown('<hr class="side-divider">', unsafe_allow_html=True)
         show_sources = st.toggle("📚 عرض المصادر مع كل إجابة", value=False)
         if st.button("🗑️ مسح المحادثة", use_container_width=True):
             st.session_state.chat_history = []
