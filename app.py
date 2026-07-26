@@ -301,92 +301,212 @@ def _get_api_key() -> str:
 # ---------------------------------------------------------------
 CUSTOM_CSS = """
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Tajawal:wght@400;500;700&display=swap');
+
+    :root {
+        --ink: #0E2A24;
+        --bg: #F5FAF8;
+        --surface: #FFFFFF;
+        --teal: #0B7A66;
+        --teal-deep: #06463C;
+        --coral: #FF5A4E;
+        --amber: #F2A93B;
+        --line: #DCEEE8;
+    }
+
+    html, body, [class^="css"], [class*=" css"] {
+        font-family: 'Tajawal', sans-serif;
+        color: var(--ink);
+    }
+
     #MainMenu, footer, header {visibility: hidden;}
 
-    .stApp {
-        background: linear-gradient(160deg, #eafaf6 0%, #f4fbf9 25%, #ffffff 55%);
-    }
+    .stApp { background: var(--bg); }
 
+    .block-container { padding-top: 1.4rem; max-width: 760px; }
+
+    /* ---------- Hero ---------- */
     .hero {
-        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 55%, #ff6b5b 100%);
-        padding: 2.2rem 1.8rem;
-        border-radius: 18px;
-        color: white;
+        position: relative;
+        background: var(--teal-deep);
+        background-image:
+            radial-gradient(circle at 12% 15%, rgba(11,122,102,0.65), transparent 42%),
+            radial-gradient(circle at 88% 85%, rgba(255,90,78,0.22), transparent 45%);
+        border-radius: 24px;
+        padding: 2.6rem 1.6rem 2.1rem;
         text-align: center;
-        margin-bottom: 1.4rem;
-        box-shadow: 0 10px 30px rgba(192,57,43,0.25);
+        margin-bottom: 1.8rem;
+        overflow: hidden;
+        box-shadow: 0 16px 40px rgba(6,70,60,0.28);
+    }
+    .hero-eyebrow {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.16em;
+        color: var(--amber);
+        font-weight: 700;
+        text-transform: uppercase;
     }
     .hero h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 800;
+        font-family: 'Cairo', sans-serif;
+        font-weight: 900;
+        font-size: 2.8rem;
+        color: #F5FAF8;
+        margin: 0.25rem 0 0.15rem;
+        letter-spacing: -0.01em;
     }
-    .hero p {
-        margin-top: 0.5rem;
-        font-size: 1rem;
-        opacity: 0.95;
+    .hero .tagline {
+        font-family: 'Tajawal', sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #CDEDE4;
+        margin-bottom: 0.9rem;
     }
-    .cross {
-        font-size: 2.4rem;
-        line-height: 1;
-        margin-bottom: 0.3rem;
+    .pulse-wrap { width: 100%; max-width: 380px; margin: 0 auto 0.9rem; }
+    .pulse-line {
+        stroke: var(--coral);
+        stroke-width: 2.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 900;
+        stroke-dashoffset: 900;
+        animation: draw 2.8s ease-in-out infinite;
     }
-
+    @keyframes draw {
+        0%   { stroke-dashoffset: 900; opacity: 0.35; }
+        55%  { stroke-dashoffset: 0;   opacity: 1; }
+        100% { stroke-dashoffset: -900; opacity: 0.35; }
+    }
+    .hero p.sub {
+        font-size: 0.92rem;
+        color: #A9D6CB;
+        max-width: 460px;
+        margin: 0 auto 1.1rem;
+        line-height: 1.7;
+    }
+    .chip-row { display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
     .info-chip {
         display: inline-block;
-        background: #ffffff;
-        border: 1px solid #f1c6c0;
-        color: #c0392b;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #EAFBF6;
         border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        margin: 0.2rem;
-        font-weight: 600;
+        padding: 0.35rem 0.95rem;
+        font-size: 0.78rem;
+        font-weight: 700;
     }
 
+    /* ---------- Section labels ---------- */
+    .section-label {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 800;
+        font-size: 1.15rem;
+        color: var(--teal-deep);
+        margin: 0.2rem 0 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* ---------- Topic cards ---------- */
     .category-card {
-        background: white;
-        border-radius: 14px;
-        padding: 0.9rem;
+        background: var(--surface);
+        border-radius: 16px;
+        padding: 1.1rem 0.5rem 0.9rem;
         text-align: center;
-        border: 1px solid #d9f0ea;
-        box-shadow: 0 2px 10px rgba(15,118,110,0.06);
+        border: 1px solid var(--line);
+        box-shadow: 0 2px 10px rgba(6,70,60,0.05);
         height: 100%;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
     .category-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(15,118,110,0.12);
+        transform: translateY(-3px);
+        border-color: var(--teal);
+        box-shadow: 0 10px 22px rgba(6,70,60,0.14);
     }
     .category-card .emoji {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 0.5rem;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 50%;
     }
     .category-card .label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #444;
-        margin-top: 0.2rem;
+        font-family: 'Tajawal', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--ink);
     }
 
+    /* ---------- Disclaimer ---------- */
     .disclaimer {
-        background: #fff8e6;
-        border: 1px solid #ffe2a3;
+        background: #FFF6E8;
+        border: 1px solid #F3D998;
         border-radius: 12px;
-        padding: 0.8rem 1rem;
-        font-size: 0.85rem;
-        color: #7a5b00;
-        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        font-size: 0.83rem;
+        color: #7A5200;
+        margin-top: 0.9rem;
+        line-height: 1.7;
     }
 
+    /* ---------- Buttons ---------- */
+    .stButton>button {
+        border-radius: 10px !important;
+        font-family: 'Tajawal', sans-serif !important;
+        font-weight: 700 !important;
+        border: 1px solid var(--line) !important;
+        color: var(--teal-deep) !important;
+    }
+    .stButton>button:hover {
+        border-color: var(--teal) !important;
+        color: var(--teal) !important;
+        background: #F0FAF7 !important;
+    }
+    .stButton>button[kind="primary"] {
+        background: var(--coral) !important;
+        border-color: var(--coral) !important;
+        color: white !important;
+    }
+
+    /* ---------- Chat ---------- */
     section[data-testid="stChatMessage"] {
-        border-radius: 14px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: 0 1px 6px rgba(6,70,60,0.04);
     }
-
+    div[data-testid="stChatInput"] textarea {
+        font-family: 'Tajawal', sans-serif !important;
+    }
     div[data-testid="stExpander"] {
         border-radius: 10px !important;
-        border: 1px solid #eee !important;
+        border: 1px solid var(--line) !important;
+    }
+
+    /* ---------- Sidebar ---------- */
+    section[data-testid="stSidebar"] {
+        background: var(--surface);
+        border-left: 1px solid var(--line);
+    }
+    section[data-testid="stSidebar"] h3 {
+        font-family: 'Cairo', sans-serif !important;
+        color: var(--teal-deep) !important;
     }
 </style>
+"""
+
+PULSE_SVG = """
+<div class="pulse-wrap">
+    <svg viewBox="0 0 380 60" xmlns="http://www.w3.org/2000/svg">
+        <path class="pulse-line"
+              d="M0,32 L70,32 L88,10 L104,52 L120,20 L138,32 L190,32
+                 L208,10 L224,52 L240,20 L258,32 L380,32" />
+    </svg>
+</div>
 """
 
 FIRST_AID_TOPICS = [
@@ -404,12 +524,13 @@ def render_hero():
     st.markdown(
         f"""
         <div class="hero">
-            <div class="cross">💓</div>
+            <div class="hero-eyebrow">مساعد الطوارئ الرقمي</div>
             <h1>{SITE_NAME}</h1>
-            <p style="font-weight:600; opacity:0.9; margin-top:-0.3rem;">{SITE_TAGLINE}</p>
-            <p>مساعدك الفوري والموثوق في حالات الطوارئ — إجابات مبنية على دليل الإسعافات
+            <div class="tagline">{SITE_TAGLINE}</div>
+            {PULSE_SVG}
+            <p class="sub">إجابات فورية وموثوقة وقت الطوارئ — مبنية على دليل الإسعافات
             الأولية المعتمد من St. John Ambulance Canada</p>
-            <div>
+            <div class="chip-row">
                 <span class="info-chip">🌐 عربي / English</span>
                 <span class="info-chip">⚡ إجابة فورية</span>
                 <span class="info-chip">📚 مصادر موثقة</span>
@@ -421,7 +542,7 @@ def render_hero():
 
 
 def render_topics():
-    st.markdown("#### 🗂️ استكشف الحالات الشائعة")
+    st.markdown('<div class="section-label">🗂️ استكشف الحالات الشائعة</div>', unsafe_allow_html=True)
     cols = st.columns(len(FIRST_AID_TOPICS))
     clicked_topic = None
     for col, (emoji, label) in zip(cols, FIRST_AID_TOPICS):
@@ -486,7 +607,7 @@ def main():
 
     clicked_topic = render_topics()
     st.markdown("---")
-    st.markdown("#### 💬 اسأل المساعد")
+    st.markdown('<div class="section-label">💬 اسأل المساعد</div>', unsafe_allow_html=True)
 
     # عرض المحادثة السابقة على هيئة شات
     for msg in st.session_state.chat_history:
