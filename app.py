@@ -565,15 +565,11 @@ CUSTOM_CSS = """
 </style>
 """
 
-PULSE_SVG = """
-<div class="pulse-wrap">
-    <svg viewBox="0 0 380 60" xmlns="http://www.w3.org/2000/svg">
-        <path class="pulse-line"
-              d="M0,32 L70,32 L88,10 L104,52 L120,20 L138,32 L190,32
-                 L208,10 L224,52 L240,20 L258,32 L380,32" />
-    </svg>
-</div>
-"""
+PULSE_SVG = (
+    '<div class="pulse-wrap"><svg viewBox="0 0 380 60" xmlns="http://www.w3.org/2000/svg">'
+    '<path class="pulse-line" d="M0,32 L70,32 L88,10 L104,52 L120,20 L138,32 L190,32 '
+    'L208,10 L224,52 L240,20 L258,32 L380,32" /></svg></div>'
+)
 
 FIRST_AID_TOPICS = [
     ("🩸", "نزيف"),
@@ -587,24 +583,22 @@ FIRST_AID_TOPICS = [
 
 def render_hero():
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="hero">
-            <div class="hero-eyebrow">مساعد الطوارئ الرقمي</div>
-            <h1>{SITE_NAME}</h1>
-            <div class="tagline">{SITE_TAGLINE}</div>
-            {PULSE_SVG}
-            <p class="sub">إجابات فورية وموثوقة وقت الطوارئ، مبنية على مرجع معتمد
-            من أساسيات الإسعافات الأولية العالمية.</p>
-            <div class="chip-row">
-                <span class="info-chip">🌐 واجهة عربية بالكامل</span>
-                <span class="info-chip">⚡ إجابة فورية</span>
-                <span class="info-chip">📚 مصادر موثقة</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    hero_html = (
+        '<div class="hero">'
+        '<div class="hero-eyebrow">مساعد الطوارئ الرقمي</div>'
+        f'<h1>{SITE_NAME}</h1>'
+        f'<div class="tagline">{SITE_TAGLINE}</div>'
+        f'{PULSE_SVG}'
+        '<p class="sub">إجابات فورية وموثوقة وقت الطوارئ، مبنية على مرجع معتمد '
+        'من أساسيات الإسعافات الأولية العالمية.</p>'
+        '<div class="chip-row">'
+        '<span class="info-chip">🌐 واجهة عربية بالكامل</span>'
+        '<span class="info-chip">⚡ إجابة فورية</span>'
+        '<span class="info-chip">📚 مصادر موثقة</span>'
+        '</div>'
+        '</div>'
     )
+    st.markdown(hero_html, unsafe_allow_html=True)
 
 
 def render_topics():
@@ -613,15 +607,13 @@ def render_topics():
     clicked_topic = None
     for col, (emoji, label) in zip(cols, FIRST_AID_TOPICS):
         with col:
-            st.markdown(
-                f"""
-                <div class="category-card">
-                    <div class="emoji">{emoji}</div>
-                    <div class="label">{label}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
+            card_html = (
+                '<div class="category-card">'
+                f'<div class="emoji">{emoji}</div>'
+                f'<div class="label">{label}</div>'
+                '</div>'
             )
+            st.markdown(card_html, unsafe_allow_html=True)
             if st.button("اسأل", key=f"topic_{label}", use_container_width=True):
                 clicked_topic = label
     return clicked_topic
@@ -629,32 +621,30 @@ def render_topics():
 
 def render_sidebar():
     with st.sidebar:
-        st.markdown(
-            f"""
-            <div class="side-brand">
-                <div class="dot">💓</div>
-                <div>
-                    <div class="name">{SITE_NAME}</div>
-                    <div class="role">مساعد الإسعافات الأولية</div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        brand_html = (
+            '<div class="side-brand">'
+            '<div class="dot">💓</div>'
+            '<div>'
+            f'<div class="name">{SITE_NAME}</div>'
+            '<div class="role">مساعد الإسعافات الأولية</div>'
+            '</div>'
+            '</div>'
         )
+        st.markdown(brand_html, unsafe_allow_html=True)
         st.markdown(f'<div class="side-heading">💓 عن {SITE_NAME}</div>', unsafe_allow_html=True)
-        st.markdown(
-            f"""<p class="side-text">«{SITE_NAME}» منصة إرشادية تقدّم معلومات إسعافات أولية
-            سريعة وموثوقة، مبنية على مصادر طبية معتمدة.</p>""",
-            unsafe_allow_html=True,
+        about_html = (
+            f'<p class="side-text">«{SITE_NAME}» منصة إرشادية تقدّم معلومات إسعافات أولية '
+            'سريعة وموثوقة، مبنية على مصادر طبية معتمدة.</p>'
         )
+        st.markdown(about_html, unsafe_allow_html=True)
         st.markdown('<hr class="side-divider">', unsafe_allow_html=True)
         st.markdown('<div class="side-heading">🚑 تذكير مهم</div>', unsafe_allow_html=True)
-        st.markdown(
+        disclaimer_html = (
             "<div class='disclaimer'>في حالة الطوارئ الحقيقية، اتصل فورًا "
             "بخدمات الإسعاف المحلية (123). المعلومات هنا للإرشاد الأولي فقط "
-            "ولا تغني عن الرعاية الطبية المتخصصة.</div>",
-            unsafe_allow_html=True,
+            "ولا تغني عن الرعاية الطبية المتخصصة.</div>"
         )
+        st.markdown(disclaimer_html, unsafe_allow_html=True)
         st.markdown('<hr class="side-divider">', unsafe_allow_html=True)
         show_sources = st.toggle("📚 عرض المصادر مع كل إجابة", value=False)
         if st.button("🗑️ مسح المحادثة", use_container_width=True):
@@ -691,7 +681,14 @@ def main():
     # عرض المحادثة السابقة على هيئة شات
     for msg in st.session_state.chat_history:
         with st.chat_message(msg["role"], avatar="🚑" if msg["role"] == "assistant" else "🧑"):
-            st.markdown(msg["content"])
+            if msg["role"] == "assistant":
+                st.markdown("**🇬🇧 English**")
+                st.markdown(msg["content_en"])
+                st.markdown("---")
+                st.markdown("**🇪🇬 بالعربي**")
+                st.markdown(msg["content_ar"])
+            else:
+                st.markdown(msg["content"])
             if msg.get("sources") and show_sources:
                 with st.expander("📚 المصادر المستخدمة"):
                     for s in msg["sources"]:
@@ -730,9 +727,13 @@ def main():
                     st.error("حصل خطأ أثناء تجهيز الإجابة، حاول تاني من فضلك.")
                     st.stop()
 
-                final_answer = translate(answer_en, "ar") if lang == "ar" else answer_en
+                answer_ar = translate(answer_en, "ar")
 
-            st.markdown(final_answer)
+            st.markdown("**🇬🇧 English**")
+            st.markdown(answer_en)
+            st.markdown("---")
+            st.markdown("**🇪🇬 بالعربي**")
+            st.markdown(answer_ar)
 
             sources_payload = []
             if not selected_df.empty:
@@ -749,7 +750,8 @@ def main():
 
         st.session_state.chat_history.append({
             "role": "assistant",
-            "content": final_answer,
+            "content_en": answer_en,
+            "content_ar": answer_ar,
             "sources": sources_payload,
         })
 
