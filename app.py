@@ -682,11 +682,15 @@ def main():
     for msg in st.session_state.chat_history:
         with st.chat_message(msg["role"], avatar="🚑" if msg["role"] == "assistant" else "🧑"):
             if msg["role"] == "assistant":
-                st.markdown("**🇬🇧 English**")
-                st.markdown(msg["content_en"])
-                st.markdown("---")
-                st.markdown("**🇪🇬 بالعربي**")
-                st.markdown(msg["content_ar"])
+                if "content_en" in msg:
+                    st.markdown("**🇬🇧 English**")
+                    st.markdown(msg["content_en"])
+                    st.markdown("---")
+                    st.markdown("**🇪🇬 بالعربي**")
+                    st.markdown(msg["content_ar"])
+                else:
+                    # محادثات قديمة اتخزنت قبل التعديل — تعرض بشكلها الأصلي
+                    st.markdown(msg.get("content", ""))
             else:
                 st.markdown(msg["content"])
             if msg.get("sources") and show_sources:
