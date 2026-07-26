@@ -280,89 +280,299 @@ def generate_answer(prompt: str, api_key: str, model: str = GROQ_MODEL,
 # ======================================================================
 # UI
 # ======================================================================
+"""
+=====================================================================
+هذا الملف بيحتوي على الجزء الخاص بالواجهة (UI) بس.
+سيبي كل الفانكشنز اللي عندك زي:
+    load_chunks, build_tfidf_index, build_bm25_index,
+    load_embedding_model, build_embedding_index,
+    detect_language, translate, retrieve_hybrid,
+    rerank_candidates, build_context_package,
+    build_prompt, generate_answer, DATA_PATH, TOP_K, TOP_N_RERANK
+زي ما هي فوق في نفس الملف، وابدلي بس main() + الإعدادات دي.
+=====================================================================
+"""
+
+import streamlit as st
+import os
+
+# ---------------------------------------------------------------
+# إعدادات الصفحة العامة (لازم تكون أول أمر Streamlit في الملف)
+# ---------------------------------------------------------------
+st.set_page_config(
+    page_title="الإسعافات الأولية | مساعدك الطبي الفوري",
+    page_icon="🩺",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+
+# ---------------------------------------------------------------
+# API Key: بتتقرا من secrets فقط. مفيش أي input أو ذكر ليها
+# في الواجهة نهائيًا. لو مش موجودة، الموقع بيوريك رسالة صيانة
+# عادية من غير أي تفاصيل تقنية.
+# ---------------------------------------------------------------
+def _get_api_key() -> str:
+    try:
+        return st.secrets.get("GROQ_API_KEY", "")
+    except Exception:
+        return os.environ.get("GROQ_API_KEY", "")
+
+
+# ---------------------------------------------------------------
+# تنسيق (CSS) عشان الموقع يبقى شكله منظمة إسعافات أولية حقيقية
+# ---------------------------------------------------------------
+CUSTOM_CSS = """
+<style>
+    #MainMenu, footer, header {visibility: hidden;}
+
+    .stApp {
+        background: linear-gradient(180deg, #fff5f5 0%, #ffffff 35%);
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 55%, #ff6b5b 100%);
+        padding: 2.2rem 1.8rem;
+        border-radius: 18px;
+        color: white;
+        text-align: center;
+        margin-bottom: 1.4rem;
+        box-shadow: 0 10px 30px rgba(192,57,43,0.25);
+    }
+    .hero h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+    .hero p {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+    .cross {
+        font-size: 2.4rem;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-chip {
+        display: inline-block;
+        background: #ffffff;
+        border: 1px solid #f1c6c0;
+        color: #c0392b;
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        margin: 0.2rem;
+        font-weight: 600;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 14px;
+        padding: 0.9rem;
+        text-align: center;
+        border: 1px solid #f0e2e0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        height: 100%;
+    }
+    .category-card .emoji {
+        font-size: 1.8rem;
+    }
+    .category-card .label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #444;
+        margin-top: 0.2rem;
+    }
+
+    .disclaimer {
+        background: #fff8e6;
+        border: 1px solid #ffe2a3;
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        color: #7a5b00;
+        margin-top: 1rem;
+    }
+
+    section[data-testid="stChatMessage"] {
+        border-radius: 14px;
+    }
+
+    div[data-testid="stExpander"] {
+        border-radius: 10px !important;
+        border: 1px solid #eee !important;
+    }
+</style>
+"""
+
+FIRST_AID_TOPICS = [
+    ("🩸", "نزيف"),
+    ("🔥", "حروق"),
+    ("🫁", "اختناق"),
+    ("❤️", "إنعاش قلبي (CPR)"),
+    ("🦴", "كسور"),
+    ("🐝", "لسعات وحساسية"),
+]
+
+
+def render_hero():
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="hero">
+            <div class="cross">➕</div>
+            <h1>مركز الإسعافات الأولية</h1>
+            <p>مساعدك الفوري والموثوق في حالات الطوارئ — إجابات مبنية على دليل الإسعافات
+            الأولية المعتمد من St. John Ambulance Canada</p>
+            <div>
+                <span class="info-chip">🌐 عربي / English</span>
+                <span class="info-chip">⚡ إجابة فورية</span>
+                <span class="info-chip">📚 مصادر موثقة</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_topics():
+    st.markdown("#### 🗂️ استكشف الحالات الشائعة")
+    cols = st.columns(len(FIRST_AID_TOPICS))
+    clicked_topic = None
+    for col, (emoji, label) in zip(cols, FIRST_AID_TOPICS):
+        with col:
+            st.markdown(
+                f"""
+                <div class="category-card">
+                    <div class="emoji">{emoji}</div>
+                    <div class="label">{label}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button("اسأل", key=f"topic_{label}", use_container_width=True):
+                clicked_topic = label
+    return clicked_topic
+
+
+def render_sidebar():
+    with st.sidebar:
+        st.markdown("### ➕ عن المركز")
+        st.write(
+            "منصة إرشادية تقدّم معلومات إسعافات أولية سريعة وموثوقة "
+            "بالعربي والإنجليزي، مبنية على مصادر طبية معتمدة."
+        )
+        st.markdown("---")
+        st.markdown("### 🚑 تذكير مهم")
+        st.markdown(
+            "<div class='disclaimer'>في حالة الطوارئ الحقيقية، اتصل فورًا "
+            "بخدمات الإسعاف المحلية (123). المعلومات هنا للإرشاد الأولي فقط "
+            "ولا تغني عن الرعاية الطبية المتخصصة.</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
+        show_sources = st.toggle("📚 عرض المصادر مع كل إجابة", value=False)
+        if st.button("🗑️ مسح المحادثة", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+        return show_sources
+
 
 def main():
-    st.title("🩹 First Aid RAG Assistant")
-    st.caption(
-        "Hybrid RAG (TF-IDF + BM25 + Semantic) + Cross-Encoder Reranking + Groq LLM "
-        "— grounded in the *First Aid Reference Guide* (St. John Ambulance Canada)."
-    )
+    render_hero()
+    show_sources = render_sidebar()
 
-    with st.sidebar:
-        st.header("⚙️ Settings")
-        api_key = st.text_input(
-            "Groq API Key",
-            type="password",
-            value=st.secrets.get("GROQ_API_KEY", "") if hasattr(st, "secrets") else "",
-            help="Get a free key at https://console.groq.com/keys",
-        )
-        show_sources = st.checkbox("Show retrieved sources", value=True)
-        st.markdown("---")
-        st.markdown(
-            "**Note:** Ask in English or Arabic — the app auto-detects the "
-            "language and translates as needed."
-        )
+    api_key = _get_api_key()
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
 
     if not os.path.exists(DATA_PATH):
-        st.error(f"Data file not found at `{DATA_PATH}`. Make sure it is committed to the repo.")
+        st.error("عذرًا، قاعدة المعرفة غير متاحة حاليًا. برجاء المحاولة لاحقًا.")
         st.stop()
 
-    chunks_df = load_chunks(DATA_PATH)
-    texts = chunks_df["chunk_text"].tolist()
+    with st.spinner("جارِ تجهيز قاعدة المعرفة..."):
+        chunks_df = load_chunks(DATA_PATH)
+        texts = chunks_df["chunk_text"].tolist()
+        tfidf_vectorizer, tfidf_matrix = build_tfidf_index(texts)
+        bm25 = build_bm25_index(texts)
+        embedding_model = load_embedding_model()
+        embedding_matrix = build_embedding_index(texts)
 
-    tfidf_vectorizer, tfidf_matrix = build_tfidf_index(texts)
-    bm25 = build_bm25_index(texts)
-    embedding_model = load_embedding_model()
-    embedding_matrix = build_embedding_index(texts)
+    clicked_topic = render_topics()
+    st.markdown("---")
+    st.markdown("#### 💬 اسأل المساعد")
 
-    st.success(f"✅ Knowledge base ready — {len(chunks_df)} chunks indexed.", icon="✅")
+    # عرض المحادثة السابقة على هيئة شات
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"], avatar="🚑" if msg["role"] == "assistant" else "🧑"):
+            st.markdown(msg["content"])
+            if msg.get("sources") and show_sources:
+                with st.expander("📚 المصادر المستخدمة"):
+                    for s in msg["sources"]:
+                        st.markdown(f"**{s['section']}**")
+                        st.write(s["text"])
 
-    question = st.text_input(
-        "Ask a first-aid question / اسأل سؤال إسعافات أولية:",
-        placeholder="e.g. What should I do for a conscious adult who is choking?",
-    )
-    ask = st.button("Ask / اسأل", type="primary")
+    question = st.chat_input("اكتب سؤالك عن الإسعافات الأولية هنا...")
+    if clicked_topic and not question:
+        question = f"إزاي أتصرف في حالة {clicked_topic}؟"
 
-    if ask and question.strip():
+    if question:
+        st.session_state.chat_history.append({"role": "user", "content": question})
+        with st.chat_message("user", avatar="🧑"):
+            st.markdown(question)
+
         if not api_key:
-            st.warning("Please enter a Groq API key in the sidebar (it's free).")
+            with st.chat_message("assistant", avatar="🚑"):
+                st.warning(
+                    "الخدمة غير متاحة حاليًا، برجاء المحاولة بعد قليل 🙏"
+                )
             st.stop()
 
-        with st.spinner("Retrieving relevant information..."):
-            lang = detect_language(question)
-            retrieval_query = translate(question, "en") if lang == "ar" else question
+        with st.chat_message("assistant", avatar="🚑"):
+            with st.spinner("جارِ البحث عن أفضل إجابة..."):
+                lang = detect_language(question)
+                retrieval_query = translate(question, "en") if lang == "ar" else question
+                candidates = retrieve_hybrid(
+                    retrieval_query, tfidf_vectorizer, tfidf_matrix, bm25,
+                    embedding_model, embedding_matrix, chunks_df, k=TOP_K,
+                )
+                reranked = rerank_candidates(retrieval_query, candidates, top_n=TOP_N_RERANK)
+                selected_df, context_text = build_context_package(reranked)
 
-            candidates = retrieve_hybrid(
-                retrieval_query, tfidf_vectorizer, tfidf_matrix, bm25,
-                embedding_model, embedding_matrix, chunks_df, k=TOP_K,
-            )
-            reranked = rerank_candidates(retrieval_query, candidates, top_n=TOP_N_RERANK)
-            selected_df, context_text = build_context_package(reranked)
+                prompt = build_prompt(retrieval_query, context_text)
+                try:
+                    answer_en = generate_answer(prompt, api_key=api_key)
+                except Exception:
+                    st.error("حصل خطأ أثناء تجهيز الإجابة، حاول تاني من فضلك.")
+                    st.stop()
 
-        with st.spinner("Generating answer..."):
-            prompt = build_prompt(retrieval_query, context_text)
-            try:
-                answer_en = generate_answer(prompt, api_key=api_key)
-            except Exception as e:
-                st.error(f"Generation failed: {e}")
-                st.stop()
+                final_answer = translate(answer_en, "ar") if lang == "ar" else answer_en
 
-            final_answer = translate(answer_en, "ar") if lang == "ar" else answer_en
+            st.markdown(final_answer)
 
-        st.markdown("### 📋 Answer")
-        st.markdown(final_answer)
+            sources_payload = []
+            if not selected_df.empty:
+                for _, row in selected_df.iterrows():
+                    sources_payload.append({
+                        "section": row.get("section", "N/A"),
+                        "text": row["chunk_text"],
+                    })
+                if show_sources:
+                    with st.expander("📚 المصادر المستخدمة"):
+                        for s in sources_payload:
+                            st.markdown(f"**{s['section']}**")
+                            st.write(s["text"])
 
-        if show_sources and not selected_df.empty:
-            st.markdown("### 📚 Sources used")
-            for _, row in selected_df.iterrows():
-                section = row.get("section", "N/A")
-                score = row.get("rerank_score", 0)
-                with st.expander(f"{row['chunk_id']} — {section} (score: {score:.2f})"):
-                    st.write(row["chunk_text"])
-
-    elif ask:
-        st.warning("Please type a question first.")
+        st.session_state.chat_history.append({
+            "role": "assistant",
+            "content": final_answer,
+            "sources": sources_payload,
+        })
 
 
+if __name__ == "__main__":
+    main()
 if __name__ == "__main__":
     main()
