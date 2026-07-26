@@ -26,9 +26,12 @@ from deep_translator import GoogleTranslator
 # --------------------------------------------------------------------
 # Page config — لازم يتكتب مرة واحدة بس وأول أمر Streamlit في الملف
 # --------------------------------------------------------------------
+SITE_NAME = "نبضة"
+SITE_TAGLINE = "أول خطوة نحو النجاة"
+
 st.set_page_config(
-    page_title="الإسعافات الأولية | مساعدك الطبي الفوري",
-    page_icon="🩺",
+    page_title=f"{SITE_NAME} | مساعدك في الإسعافات الأولية",
+    page_icon="💓",
     layout="centered",
     initial_sidebar_state="expanded",
 )
@@ -301,7 +304,7 @@ CUSTOM_CSS = """
     #MainMenu, footer, header {visibility: hidden;}
 
     .stApp {
-        background: linear-gradient(180deg, #fff5f5 0%, #ffffff 35%);
+        background: linear-gradient(160deg, #eafaf6 0%, #f4fbf9 25%, #ffffff 55%);
     }
 
     .hero {
@@ -346,9 +349,14 @@ CUSTOM_CSS = """
         border-radius: 14px;
         padding: 0.9rem;
         text-align: center;
-        border: 1px solid #f0e2e0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border: 1px solid #d9f0ea;
+        box-shadow: 0 2px 10px rgba(15,118,110,0.06);
         height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .category-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15,118,110,0.12);
     }
     .category-card .emoji {
         font-size: 1.8rem;
@@ -394,10 +402,11 @@ FIRST_AID_TOPICS = [
 def render_hero():
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
     st.markdown(
-        """
+        f"""
         <div class="hero">
-            <div class="cross">➕</div>
-            <h1>مركز الإسعافات الأولية</h1>
+            <div class="cross">💓</div>
+            <h1>{SITE_NAME}</h1>
+            <p style="font-weight:600; opacity:0.9; margin-top:-0.3rem;">{SITE_TAGLINE}</p>
             <p>مساعدك الفوري والموثوق في حالات الطوارئ — إجابات مبنية على دليل الإسعافات
             الأولية المعتمد من St. John Ambulance Canada</p>
             <div>
@@ -433,9 +442,9 @@ def render_topics():
 
 def render_sidebar():
     with st.sidebar:
-        st.markdown("### ➕ عن المركز")
+        st.markdown(f"### 💓 عن {SITE_NAME}")
         st.write(
-            "منصة إرشادية تقدّم معلومات إسعافات أولية سريعة وموثوقة "
+            f"«{SITE_NAME}» منصة إرشادية تقدّم معلومات إسعافات أولية سريعة وموثوقة "
             "بالعربي والإنجليزي، مبنية على مصادر طبية معتمدة."
         )
         st.markdown("---")
