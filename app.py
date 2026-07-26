@@ -11,7 +11,6 @@ Deployed on Streamlit Community Cloud. LLM calls go to Groq's free API
 
 import os
 import re
-import ast
 import requests
 import numpy as np
 import pandas as pd
@@ -25,12 +24,13 @@ from langdetect import detect
 from deep_translator import GoogleTranslator
 
 # --------------------------------------------------------------------
-# Page config
+# Page config — لازم يتكتب مرة واحدة بس وأول أمر Streamlit في الملف
 # --------------------------------------------------------------------
 st.set_page_config(
-    page_title="First Aid RAG Assistant",
-    page_icon="🩹",
-    layout="wide",
+    page_title="الإسعافات الأولية | مساعدك الطبي الفوري",
+    page_icon="🩺",
+    layout="centered",
+    initial_sidebar_state="expanded",
 )
 
 DATA_PATH = os.path.join("data", "first_aid_semantic_chunks_final.csv")
@@ -280,31 +280,6 @@ def generate_answer(prompt: str, api_key: str, model: str = GROQ_MODEL,
 # ======================================================================
 # UI
 # ======================================================================
-"""
-=====================================================================
-هذا الملف بيحتوي على الجزء الخاص بالواجهة (UI) بس.
-سيبي كل الفانكشنز اللي عندك زي:
-    load_chunks, build_tfidf_index, build_bm25_index,
-    load_embedding_model, build_embedding_index,
-    detect_language, translate, retrieve_hybrid,
-    rerank_candidates, build_context_package,
-    build_prompt, generate_answer, DATA_PATH, TOP_K, TOP_N_RERANK
-زي ما هي فوق في نفس الملف، وابدلي بس main() + الإعدادات دي.
-=====================================================================
-"""
-
-import streamlit as st
-import os
-
-# ---------------------------------------------------------------
-# إعدادات الصفحة العامة (لازم تكون أول أمر Streamlit في الملف)
-# ---------------------------------------------------------------
-st.set_page_config(
-    page_title="الإسعافات الأولية | مساعدك الطبي الفوري",
-    page_icon="🩺",
-    layout="centered",
-    initial_sidebar_state="expanded",
-)
 
 # ---------------------------------------------------------------
 # API Key: بتتقرا من secrets فقط. مفيش أي input أو ذكر ليها
@@ -525,9 +500,7 @@ def main():
 
         if not api_key:
             with st.chat_message("assistant", avatar="🚑"):
-                st.warning(
-                    "الخدمة غير متاحة حاليًا، برجاء المحاولة بعد قليل 🙏"
-                )
+                st.warning("الخدمة غير متاحة حاليًا، برجاء المحاولة بعد قليل 🙏")
             st.stop()
 
         with st.chat_message("assistant", avatar="🚑"):
@@ -572,7 +545,5 @@ def main():
         })
 
 
-if __name__ == "__main__":
-    main()
 if __name__ == "__main__":
     main()
